@@ -1,4 +1,3 @@
-from datetime import datetime
 from django.db import transaction
 from django.utils import timezone
 from core.api.exceptions import BadRequestError, ConflictError, NotFoundError, PermissionDeniedError
@@ -61,9 +60,8 @@ def decide(actor, application_id, approve: bool, remarks=""):
             raise PermissionDeniedError("Cannot approve own application.", code="self_approval")
         if approve:
             balance = get_balance(application.employee_id, application.leave_type, application.start_date.year)
-            with transaction.atomic():
-                balance.used += application.days
-                balance.save()
+            balance.used += application.days
+            balance.save(update_fields=["used", "updated_at"])
             application.status = "APPROVED"
         else:
             application.status = "REJECTED"
@@ -82,7 +80,8 @@ def withdraw(actor, application_id):
         if application.employee_id != actor.user_id:
             raise PermissionDeniedError("Cannot withdraw other's application.", code="permission_denied")
         application.status = "CANCELLED"
-        application.save()
+        application.save(update_fields=["status", "updated_at"])
+    return application
 
 
 def cancel_approved(actor, application_id):
@@ -93,8 +92,8 @@ def cancel_approved(actor, application_id):
         if application.employee_id != actor.user_id:
             raise PermissionDeniedError("Cannot cancel other's application.", code="permission_denied")
         balance = get_balance(application.employee_id, application.leave_type, application.start_date.year)
-        with transaction.atomic():
-            balance.used -= application.days
-            balance.save()
+        balance.used -= application.days
+        balance.save(update_fields=["used", "updated_at"])
         application.status = "CANCELLED"
-        application.save()
+        application.save(update_fields=["status", "updated_at"])
+    return application

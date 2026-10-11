@@ -14,13 +14,21 @@ PERMISSIONS = [
     ("leave_elm.application.view", "View leave applications"),
     ("leave_elm.application.apply", "Apply for leave"),
     ("leave_elm.application.approve", "Approve leave applications"),
+    ("leave_elm.application.withdraw", "Withdraw submitted leave applications"),
+    ("leave_elm.application.cancel", "Cancel approved leave applications"),
     ("leave_elm.balance.view", "View leave balances"),
     ("leave_elm.policy.manage", "Manage leave policies"),
 ]
 
 SYSTEM_PERMISSIONS = []
 
-_EMPLOYEE = ["leave_elm.application.view", "leave_elm.application.apply", "leave_elm.balance.view"]
+_EMPLOYEE = [
+    "leave_elm.application.view",
+    "leave_elm.application.apply",
+    "leave_elm.application.withdraw",
+    "leave_elm.application.cancel",
+    "leave_elm.balance.view",
+]
 _LEAVE_APPROVER = ["leave_elm.application.view", "leave_elm.application.approve", "leave_elm.balance.view"]
 _LEAVE_ADMIN = ["leave_elm.application.view", "leave_elm.balance.view", "leave_elm.policy.manage"]
 

@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from modules.elm.models import LeaveType, LeaveBalance, LeaveApplication
-from modules.elm.services.leave import get_balance
 
 
 class LeaveTypeSerializer(ModelSerializer):

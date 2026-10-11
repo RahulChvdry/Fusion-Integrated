@@ -3,8 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema
 from fusion_auth.permissions import HasPermission
-from modules.elm.models import LeaveType, LeaveApplication
-from modules.elm.services.leave import apply, decide, withdraw, cancel_approved, get_balance
+from modules.elm.models import LeaveType, LeaveApplication, LeaveBalance
+from modules.elm.services.leave import apply, decide, withdraw, cancel_approved
 from modules.elm.api.serializers import LeaveTypeSerializer, LeaveApplicationSerializer, ApplyInputSerializer, DecisionInputSerializer, LeaveBalanceSerializer
 from django.utils import timezone
 from core.api.exceptions import BadRequestError
@@ -61,7 +61,7 @@ class DecideView(APIView):
 
 
 class WithdrawView(APIView):
-    permission_classes = [IsAuthenticated, HasPermission("leave_elm.application.apply")]
+    permission_classes = [IsAuthenticated, HasPermission("leave_elm.application.withdraw")]
 
     @extend_schema(responses=LeaveApplicationSerializer)
     def post(self, request, pk):
@@ -71,7 +71,7 @@ class WithdrawView(APIView):
 
 
 class CancelView(APIView):
-    permission_classes = [IsAuthenticated, HasPermission("leave_elm.application.apply")]
+    permission_classes = [IsAuthenticated, HasPermission("leave_elm.application.cancel")]
 
     @extend_schema(responses=LeaveApplicationSerializer)
     def post(self, request, pk):
@@ -92,6 +92,6 @@ class MyBalanceView(APIView):
             year = int(year)
         except (TypeError, ValueError) as exc:
             raise BadRequestError("year must be a number.", code="invalid_filter") from exc
-        balances = get_balance(request.user.user_id, None, year, for_update=False)
+        balances = LeaveBalance.objects.filter(employee_id=request.user.user_id, year=year)
         serializer = LeaveBalanceSerializer(balances, many=True)
         return Response(serializer.data)
